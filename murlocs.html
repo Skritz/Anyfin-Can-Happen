@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document</title>
+
+<style type="text/css">
+
+body {
+	color: #333;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 16px;
+    line-height: 1.4;
+}
+
+h1 {
+	font-size: 32px;
+	font-weight: normal;
+}
+
+h2 {
+	font-size: 24px;
+	font-weight: normal;
+	margin: 20px 0 10px;
+}
+
+em {
+	font-size: 12px;
+	color: #ccc;
+	font-style: italic;
+}
+
+.clear {
+	clear: both;
+}
+
+.clic {
+	border: 1px solid #E0E0E0;
+	cursor: pointer;
+	float: left;
+	min-height: 45px;
+	margin: 0 5px 0 0;
+	padding: 10px 20px;	
+}
+
+.clic:hover {
+	background-color: #F0F0F0;
+}
+
+.clic strong {
+	display: block;
+	text-align: center;
+}
+
+.reset {
+	line-height: 45px;
+}
+
+.reset:hover {
+	background-color: #FF2222;
+	color: #FFFFFF;
+}
+
+.combo {
+    color: #FF2222;
+    font-size: 34px;
+    font-weight: bold;
+    text-shadow: 0 0 3px #291616;   
+}
+
+.card {
+	float: left;
+	position: relative;
+}
+
+.card .dmg,
+.card .hp {
+    border-radius: 40px;    
+    bottom: 0;
+    color: #FFF;    
+    font-size: 30px;
+	font-weight: bold;
+	height: 40px;
+    line-height: 40px;
+    position: absolute;
+    text-align: center;
+    text-shadow: -1px -1px 2px #000, 1px 1px 2px #000;
+    width: 40px;    
+}
+
+.card .dmg {	
+	background-color: #FFE628;
+    left: 5px;
+}
+
+.card .hp {
+	background-color: #BF201F;
+    right: 5px;
+}	
+
+</style>
+
+</head>
+<body>
+
+<h1>Anyfin Can Happen damage calculator</h1>
+<h2>Murlocs :</h2>
+<div class="clic blue">Bluegill Warrior <strong class="counter">0</strong></div>
+<div class="clic chief">Murloc Warleader <strong class="counter">0</strong></div>
+<div class="clic eye">Old Murk-Eye <strong class="counter">0</strong></div>
+<div class="clic reset">RESET</div>
+<div class="clear"></div>
+
+<em>Left click to add 1, right click to remove 1</em>
+
+<h2>Max charge damage : </h2>
+<div class="combo">0</div>
+<div class="combo_visual"></div>
+
+
+<script type="text/javascript">
+	
+var blue = {
+	div: document.querySelectorAll('.blue')[0],
+	counter: document.querySelectorAll('.blue .counter')[0],
+	number: 0
+};
+
+var chief = {
+	div: document.querySelectorAll('.chief')[0],
+	counter: document.querySelectorAll('.chief .counter')[0],
+	number: 0
+};
+
+var eye = {
+	div: document.querySelectorAll('.eye')[0],
+	counter: document.querySelectorAll('.eye .counter')[0],
+	number: 0
+};
+
+var div_combo = document.querySelectorAll('.combo')[0];
+  	div_combo_visual = document.querySelectorAll('.combo_visual')[0],
+  	div_reset = document.querySelectorAll('.reset')[0];
+
+blue.div.addEventListener("click", function() {
+	addOne( blue );
+});
+chief.div.addEventListener("click", function() {
+	addOne( chief );
+});
+eye.div.addEventListener("click", function() {
+	addOne( eye );
+});
+
+blue.div.addEventListener("contextmenu", function( e ) {
+	removeOne( blue );
+	e.preventDefault();
+});
+
+chief.div.addEventListener("contextmenu", function( e ) {
+	removeOne( chief );
+	e.preventDefault();
+});
+
+eye.div.addEventListener("contextmenu", function( e ) {
+	removeOne( eye );
+	e.preventDefault();
+});
+
+div_reset.addEventListener("click", function() {
+	blue.number = 0;
+	blue.counter.innerHTML = 0;
+	chief.number = 0;
+	chief.counter.innerHTML = 0;
+	eye.number = 0;
+	eye.counter.innerHTML = 0;
+
+	updateCombo();
+});
+
+function getBlueDmg() {
+	return (2 + ( chief.number * 2));
+}
+
+function getChiefDmg() {
+	return (3 + ( (chief.number - 1) * 2));
+}
+
+function getEyeDmg() {
+	return (2 + ( chief.number * 2) + (blue.number + chief.number + (eye.number - 1) ));
+}
+
+function removeOne( obj ) {
+	if ( obj.number > 0 ) {
+		obj.number--;
+		obj.counter.innerHTML = obj.number;
+		updateCombo();
+	}
+}
+
+function addOne( obj ) {
+	obj.number++;
+	obj.counter.innerHTML = obj.number;
+	updateCombo();
+}
+
+
+function updateCombo() {
+	var combo = (blue.number * getBlueDmg()) + (eye.number * getEyeDmg() );
+	div_combo.innerHTML = combo;	
+	updateComboImg();
+}
+
+function updateComboImg() {
+	var img_blue = '<img src="img/murloc_bluegill.jpg">',
+		img_chief = '<img src="img/murloc_warleader.jpg">',
+		img_eye = '<img src="img/murloc_murkeye.jpg">';
+
+	var class_card = 'card',
+		class_dmg = 'dmg',
+		class_hp = 'hp',
+		i,
+		html = '';
+
+	var hp_blue = 1 + chief.number,
+		hp_chief = 3 + (chief.number - 1),
+		hp_eye = 4 + chief.number;
+
+	for ( i = 0; i < blue.number; i++ ) {
+		html += '<div class="' + class_card + '">' + img_blue + '<div class="' + class_dmg + '">' + getBlueDmg() + '</div><div class="' + class_hp + '">' + hp_blue + '</div></div>';
+	}
+
+	for ( i = 0; i < chief.number; i++ ) {
+		html += '<div class="' + class_card + '">' + img_chief + '<div class="' + class_dmg + '">' + getChiefDmg() + '</div><div class="' + class_hp + '">' + hp_chief + '</div></div>';
+	}
+
+	for ( i = 0; i < eye.number; i++ ) {
+		html += '<div class="' + class_card + '">' + img_eye + '<div class="' + class_dmg + '">' + getEyeDmg() + '</div><div class="' + class_hp + '">' + hp_eye + '</div></div>';
+	}
+
+	div_combo_visual.innerHTML = html;
+}
+
+</script>
+
+</body>
+</html>
